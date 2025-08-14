@@ -1,0 +1,22 @@
+version: "3.8"
+
+services:
+  windows:
+    image: dockurr/windows
+    container_name: windows-vm
+    environment:
+      VERSION: "11"
+      RAM_SIZE: "8G"
+      CPU_CORES: "4"
+      DISK_SIZE: "64G"
+      USERNAME: "admin"
+      PASSWORD: "admin@123"
+    ports:
+      - "8006:8006" # noVNC Web UI
+      - "3389:3389" # RDP
+    devices:
+      - /dev/kvm:/dev/kvm
+    cap_add:
+      - NET_ADMIN
+    stop_grace_period: 2m
+    restart: unless-stopped
