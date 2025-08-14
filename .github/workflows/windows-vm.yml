@@ -1,0 +1,47 @@
+name: Windows VM via Docker
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cài đặt Docker
+        run: |
+          sudo apt update
+          sudo apt install -y docker.io docker-compose
+
+      - name: Tạo file docker-compose
+        run: |
+          mkdir vm && cd vm
+          cat > win11.yml <<'EOF'
+          version: '3'
+          services:
+            windows:
+              image: dockurr/windows
+              container_name: windows
+              environment:
+                VERSION: "11"
+                USERNAME: "admin"
+                PASSWORD: "admin@123"
+                RAM_SIZE: "32G"
+                CPU_CORES: "8"
+              devices:
+                - /dev/kvm
+                - /dev/net/tun
+              cap_add:
+                - NET_ADMIN
+              ports:
+                - "8006:8006"
+                - "3389:3389/tcp"
+                - "3389:3389/udp"
+              stop_grace_period: 2m
+              volumes:
+                - /home:/storage
+          EOF
+
+      - name: Chạy Windows VM
+        run: |
+          cd vm
+          sudo docker-compose -f win11.yml up -d
