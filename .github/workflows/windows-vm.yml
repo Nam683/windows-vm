@@ -7,10 +7,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Cài đặt Docker
+      - name: Kích hoạt Docker có sẵn
         run: |
-          sudo apt update
-          sudo apt install -y docker.io docker-compose
+          sudo systemctl start docker
+          docker --version
+          docker-compose --version || echo "docker-compose chưa có"
+
+      - name: Cài docker-compose (nếu thiếu)
+        run: |
+          if ! command -v docker-compose &> /dev/null; then
+            sudo curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose
+          fi
 
       - name: Tạo file docker-compose
         run: |
@@ -25,8 +33,8 @@ jobs:
                 VERSION: "11"
                 USERNAME: "admin"
                 PASSWORD: "admin@123"
-                RAM_SIZE: "32G"
-                CPU_CORES: "8"
+                RAM_SIZE: "8G"
+                CPU_CORES: "4"
               devices:
                 - /dev/kvm
                 - /dev/net/tun
